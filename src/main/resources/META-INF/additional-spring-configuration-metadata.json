@@ -1,0 +1,27 @@
+{"properties": [
+  {
+    "name": "management.metrics.export.influx.auto-update-database",
+    "type": "java.lang.String",
+    "description": "A description for 'management.metrics.export.influx.auto-update-database'"
+  },
+  {
+    "name": "spring.influx.database",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.influx.database'"
+  },
+  {
+    "name": "management.endpoint.jolokia.path",
+    "type": "java.lang.String",
+    "description": "A description for 'management.endpoint.jolokia.path'"
+  },
+  {
+    "name": "management.metrics.web.server.requests.autotime.enabled",
+    "type": "java.lang.String",
+    "description": "A description for 'management.metrics.web.server.requests.autotime.enabled'"
+  },
+  {
+    "name": "springfox.documentation.swagger.v2.path",
+    "type": "java.lang.String",
+    "description": "A description for 'springfox.documentation.swagger.v2.path'"
+  }
+]}

@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: ecommercedb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password123
+    ports:
+      - "3307:3306"
+
+  influxdb:
+    image: influxdb:1.8.10
+    container_name: influxdb
+    restart: always
+    environment:
+      INFLUXDB_DB: telegraf
+      INFLUXDB_ADMIN_USER: telegraf
+      INFLUXDB_ADMIN_PASSWORD: myP@SSword
+    ports:
+      - "8087:8086"
+
+  telegraf:
+    image: telegraf:1.27.3
+    container_name: telegraf
+    restart: always
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    depends_on:
+      - influxdb
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: grafana
+    restart: always
+    ports:
+      - "3001:3000"
+    depends_on:
+      - influxdb
+
+  spring-boot-app:
+    image: dockar23/ecommerce-app-image:0.0.1
+    container_name: spring-boot-app
+    restart: always
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mysql
+      - influxdb
+    environment:
+      # Spring Boot MySQL configuration
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommercedb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      SPRING_JPA_SHOW_SQL: "true"
+
+      # Spring Boot InfluxDB configuration
+      SPRING_INFLUX_URL: http://influxdb:8086
+      SPRING_INFLUX_DATABASE: telegraf
+      SPRING_INFLUX_USER: telegraf
+      SPRING_INFLUX_PASSWORD: myP@SSword
+
+      # Micrometer Configuration
+      MANAGEMENT_INFLUX_METRICS_EXPORT_URI: http://influxdb:8086
+      MANAGEMENT_INFLUX_METRICS_EXPORT_DB: telegraf
+      MANAGEMENT_INFLUX_METRICS_EXPORT_USER_NAME: telegraf
+      MANAGEMENT_INFLUX_METRICS_EXPORT_PASSWORD: myP@SSword
+      MANAGEMENT_METRICS_EXPORT_INFLUX_AUTO_UPDATE_DATABASE: "true"
+      MANAGEMENT_METRICS_WEB_SERVER_REQUESTS_AUTOTIME_ENABLED: "true"
+
+      # Enable Jolokia
+      MANAGEMENT_INFLUX_METRICS_EXPORT_ENABLED: "true"
+      MANAGEMENT_ENDPOINT_JOLOKIA_PATH: /actuator/jolokia
+
+      # Swagger Configuration
+      SPRINGFOX_DOCUMENTATION_SWAGGER_V2_PATH: /swagger
